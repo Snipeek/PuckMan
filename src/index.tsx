@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 
-import { Root } from '@/root';
+import { Root } from './root';
 
 const node = document.getElementById('root');
 

@@ -21,6 +21,7 @@ export const Root = () => {
   return (
    <>
      <Routes>
+       <Route exact path={`/PuckMan/`} element={<Colors />} />
        {Object.entries(byType).map(([path, Component]) => (
          <Route key={path} exact path={`/PuckMan/${path}`} element={<Component />} />
        ))}
