@@ -1,22 +1,8 @@
-const CACHE_NAME = 'static-cache-v1';
-const PRECACHE_URLS = [
-    '/', // Главная страница
-    '/index.html', // Основной HTML файл
-    '/styles.css', // Основной CSS файл
-    '/script.js', // Основной JS файл
-    '/images/logo.png', // Пример изображения
-    // Добавьте другие необходимые файлы
-];
+const CACHE_NAME = 'dynamic-cache';
 
-// Устанавливаем SW и кэшируем все необходимые статические файлы
+// Устанавливаем SW и кэшируем все ресурсы, загруженные при первой загрузке страницы
 self.addEventListener('install', (event) => {
-    event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(PRECACHE_URLS);
-        })
-    );
-
-    // Следует активировать сразу после установки
+    // Не указываем конкретные файлы, просто пропускаем
     self.skipWaiting();
 });
 
@@ -41,14 +27,18 @@ self.addEventListener('fetch', (event) => {
 
     event.respondWith(
         caches.match(event.request).then((cachedResponse) => {
-            return cachedResponse || fetch(event.request).then((networkResponse) => {
-                return caches.open('dynamic-cache').then((cache) => {
-                    cache.put(event.request, networkResponse.clone());
+            const fetchPromise = fetch(event.request)
+                .then((networkResponse) => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, networkResponse.clone());
+                        });
+                    }
                     return networkResponse;
-                });
-            }).catch(() => {
-                // Если запрос не прошел (например, когда оффлайн), можно вернуть что-то из кэша
-            });
+                })
+                .catch(() => cachedResponse); // Возвращаем кэшированный ответ, если есть ошибка сети
+
+            return cachedResponse || fetchPromise;
         })
     );
 });
