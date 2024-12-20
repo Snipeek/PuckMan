@@ -1,0 +1,7 @@
+.root {
+    cursor: pointer;
+    background: #ddd;
+    border-radius: 8px;
+    padding: var(--gap-l);
+    text-align: center;
+}

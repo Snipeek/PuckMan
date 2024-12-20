@@ -1,0 +1,30 @@
+import { Colors } from './pages/Colors'
+import { Numbers } from './pages/Numbers'
+import { Lines } from './pages/Lines'
+import { Route, Routes } from 'react-router-dom';
+
+import './root.css';
+
+const byType = {
+  colors: Colors,
+  numbers: Numbers,
+  lines: Lines,
+}
+
+export const menu = {
+  colors: 'Цвета',
+  numbers: 'Цифры',
+  lines: 'Указатель',
+}
+
+export const Root = () => {
+  return (
+   <>
+     <Routes>
+       {Object.entries(byType).map(([path, Component]) => (
+         <Route key={path} exact path={`/${path}`} element={<Component />} />
+       ))}
+     </Routes>
+   </>
+  )
+}

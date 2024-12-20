@@ -1,0 +1,21 @@
+body {
+    padding: var(--gap-l);
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: sans-serif;
+    outline: none;
+}
+
+:root {
+    --gap-s: 4px;
+    --gap-m: 8px;
+    --gap-l: 14px;
+    --gap-xl: 18px;
+
+    --text: #333;
+    --text-secondary: #666;
+    --text-placeholder: #999;
+}

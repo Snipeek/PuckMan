@@ -1,0 +1,19 @@
+.root {
+    margin: var(--gap-m) 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    display: flex;
+}
+
+.label {
+    padding: var(--gap-l);
+}
+
+.input {
+    padding: var(--gap-l);
+    flex-grow: 1;
+    text-align: right;
+    height: 100%;
+    font-size: 1em;
+    border: none;
+}
