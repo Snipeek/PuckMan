@@ -22,7 +22,7 @@ export const Root = () => {
    <>
      <Routes>
        {Object.entries(byType).map(([path, Component]) => (
-         <Route key={path} exact path={`/${path}`} element={<Component />} />
+         <Route key={path} exact path={`/PuckMan/${path}`} element={<Component />} />
        ))}
      </Routes>
    </>

@@ -12,7 +12,7 @@ export const Menu = () => {
   return (
     <div className={styles.root}>
       {items.map(([path, title]) => (
-        <div onClick={() => history.push(`/${path}`)} key={path} className={cn(styles.item, pathname.slice(1) === path && styles.current)}>
+        <div onClick={() => history.push(`/PuckMan/${path}`)} key={path} className={cn(styles.item, pathname.replace('/PuckMan/', '') === path && styles.current)}>
           {title}
         </div>
       ))}
