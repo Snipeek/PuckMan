@@ -1,20 +1,53 @@
+const CACHE_NAME = 'static-cache-v1';
+const PRECACHE_URLS = [
+    '/', // Главная страница
+    '/index.html', // Основной HTML файл
+    '/styles.css', // Основной CSS файл
+    '/script.js', // Основной JS файл
+    '/images/logo.png', // Пример изображения
+    // Добавьте другие необходимые файлы
+];
+
+// Устанавливаем SW и кэшируем все необходимые статические файлы
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(PRECACHE_URLS);
+        })
+    );
+
+    // Следует активировать сразу после установки
+    self.skipWaiting();
+});
+
+// Активируем новый SW и очищаем старый кэш
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.filter((cacheName) => {
+                    return cacheName !== CACHE_NAME;
+                }).map((cacheName) => {
+                    return caches.delete(cacheName);
+                })
+            );
+        })
+    );
+});
+
+// Обработка запросов
 self.addEventListener('fetch', (event) => {
-    // Мы хотим применить стратегию SWR только для GET-запросов
     if (event.request.method !== 'GET') return;
 
-    // Используем `respondWith`, чтобы указать, как обработать запрос
     event.respondWith(
-        caches.open('dynamic-cache').then((cache) => {
-            return cache.match(event.request).then((cachedResponse) => {
-                // В то время как возвращаем кэшированный ответ (если он есть), начинаем получение нового ответа из сети
-                const networkFetch = fetch(event.request).then((networkResponse) => {
-                    // Когда мы его получили, обновим кэш для будущих запросов
+        caches.match(event.request).then((cachedResponse) => {
+            return cachedResponse || fetch(event.request).then((networkResponse) => {
+                return caches.open('dynamic-cache').then((cache) => {
                     cache.put(event.request, networkResponse.clone());
-                    return networkResponse; // возвращаем сетевой ответ для тех случаев, когда в кэше ничего не было
+                    return networkResponse;
                 });
-
-                // Возвращаем кэшированный ответ сразу, но обновляем его в фоне
-                return cachedResponse || networkFetch;
+            }).catch(() => {
+                // Если запрос не прошел (например, когда оффлайн), можно вернуть что-то из кэша
             });
         })
     );
@@ -24,6 +57,4 @@ self.addEventListener('message', (event) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
         self.skipWaiting();
     }
-})
-
-self.skipWaiting();
+});
