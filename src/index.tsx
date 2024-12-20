@@ -20,7 +20,7 @@ root.render(
 
 if ('serviceWorker' in navigator) {
   // Регистрируем Service Worker
-  navigator.serviceWorker.register('/sw.js').then((registration) => {
+  navigator.serviceWorker.register('/PuckMan/sw.js').then((registration) => {
     // Слушаем появление новой версии
     registration.onupdatefound = () => {
       const newWorker = registration.installing;
