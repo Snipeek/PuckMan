@@ -8,8 +8,16 @@ function getRandomIntInclusive(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-export const Timer = ({ count, timeFrom, timeTo, pause, children }) => {
+export const Timer = ({ children, ...props }) => {
+  return children(useTimer(props));
+}
+
+export const useTimer = ({ count, timeFrom, timeTo, pause, isClick }) => {
   const ref = useRef();
+  const refTimer = useRef();
+
+
+  const [timer, setTimer] = useState(0);
   const [state, setState] = useState({ current: null, time: 0, paused: false, stop: true });
 
   const stepPaused = (current, time = pause) => {
@@ -32,6 +40,7 @@ export const Timer = ({ count, timeFrom, timeTo, pause, children }) => {
       if (time === 0) {
         if (current === count - 1) {
           setState(prev => ({ ...prev, current, paused: false, stop: true }));
+          clearInterval(refTimer.current);
           return;
         }
 
@@ -43,14 +52,32 @@ export const Timer = ({ count, timeFrom, timeTo, pause, children }) => {
     }, 1000);
   }
 
-  return children({
+  return {
     ...state,
+    timer,
+    onNext: () => {
+      if (state.current === count - 1) {
+        setState(prev => ({ ...prev, paused: false, stop: true }));
+        clearInterval(refTimer.current);
+        return;
+      }
+      setState(prev => ({ ...prev, pause: false, stop: false, current: prev.current + 1, }));
+    },
     onStart: () => {
-      stepPaused(-1)
+      setTimer(0);
+      
+      if (!isClick) {
+        stepPaused(-1);
+      } else {
+        setState(prev => ({ ...prev, pause: false, stop: false, current: 0 }));
+      }
+      refTimer.current = setInterval(() => { setTimer(prev => prev + 1) }, 1000)
     },
     onStop: () => {
       clearTimeout(ref.current);
+      clearInterval(refTimer.current);
+      setTimer(0);
       setState({ current: null, time: 0, paused: false, stop: true })
     }
-  });
-}
+  };
+};

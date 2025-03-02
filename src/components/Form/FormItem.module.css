@@ -1,19 +1,57 @@
 .root {
     margin: var(--gap-m) 0;
     border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 16px;
+    overflow: auto;
     display: flex;
+    flex-direction: column;
+    padding: var(--gap-m);
 }
 
 .label {
-    padding: var(--gap-l);
+    padding: 0 var(--gap-m);
+    margin-bottom: var(--gap-m);
+    font-weight: 600;
+    position: sticky;
+    left: 0;
+    font-size: 14px;
+    color: var(--text-secondary)
 }
 
 .input {
-    padding: var(--gap-l);
+    padding: 0 var(--gap-m);
     flex-grow: 1;
-    text-align: right;
     height: 100%;
-    font-size: 1em;
+    font-size: 1.5em;
     border: none;
+}
+
+.options {
+    display: flex;
+    gap: var(--gap-l);
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.selected {
+    display: flex;
+    gap: var(--gap-l);
+    align-items: center;
+    flex-wrap: nowrap;
+    margin-bottom: var(--gap-l);
+}
+
+.option {
+    padding: var(--gap-m) var(--gap-l);
+    border-radius: 30px;
+
+    &.active {
+        background: #dddddd;
+    }
+}
+
+.optionItem {
+    height: 2em;
+    display: block;
+    padding: 0;
 }

@@ -1,8 +1,9 @@
+import classNames from 'classnames';
 import styles from './Button.module.css';
 
-export const Button = ({ children, ...other }) => {
+export const Button = ({ children, className, ...other }) => {
   return (
-    <div className={styles.root} {...other}>
+    <div className={classNames(styles.root, className)} {...other}>
       {children}
     </div>
   )

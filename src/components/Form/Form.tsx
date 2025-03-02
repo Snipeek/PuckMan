@@ -4,14 +4,14 @@ import {FormItem} from "./FormItem";
 const name = 'form';
 
 const local = {
-  get: () => JSON.parse(localStorage.getItem(name) || '{}'),
+  get: (def) => JSON.parse(localStorage.getItem(name) || JSON.stringify(def)),
   set: (next) => {
     localStorage.setItem(name, JSON.stringify(next))
   },
 }
 
-export const useFrom = () => {
-  const [state, setState] = useState(local.get());
+export const useFrom = (def = {}) => {
+  const [state, setState] = useState(local.get(def));
 
   useEffect(() => {
     local.set(state);
@@ -30,7 +30,6 @@ export const useFrom = () => {
 export const Form = ({ control }) => {
   return (
     <div>
-      <FormItem {...control('count', 'Количество')} type='number' />
       <FormItem {...control('timeFrom', 'Время от')} type='number' />
       <FormItem {...control('timeTo', 'Время до')} type='number' />
       <FormItem {...control('pause', 'Пауза')} type='number' />
