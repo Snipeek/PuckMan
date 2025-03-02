@@ -75,7 +75,7 @@ export const Root = () => {
 
   const elems = state[`items-${state.type}`] || [];
 
-  const hash = items[state.type].reduce((acc, item) => ({ ...acc, [item.value]: item.name }), {});
+  const hash = (items[state.type] || []).reduce((acc, item) => ({ ...acc, [item.value]: item.name }), {});
   
   const isClick = state.type === 'gate';
 
