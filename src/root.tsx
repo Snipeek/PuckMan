@@ -13,6 +13,7 @@ import {FormItem} from './components/Form/FormItem';
 import {Gate, sides} from './components/Gate/Gate';
 
 import './root.css';
+import classNames from 'classnames';
 
 function generateDistinctColors(n) {
   const colors = [];
@@ -45,7 +46,7 @@ function generateAngles(n) {
 
 const items = {
   color: generateDistinctColors(10).map(color => ({
-    name: <div style={{ height: '100%', width: '2em', background: color}} />,
+    name: <div style={{ height: '2em', width: '2em', background: color}} />,
     value: color,
   })),
   number: (new Array(10).fill(null)).map((_, i) => i + 1).map(i => ({
@@ -53,7 +54,11 @@ const items = {
     value: i,
   })),
   line: generateAngles(8).map(deg => ({
-    name: <div style={{ height: '100%', fontSize: '2em', width: '2em', transformOrigin: 'center', transform: `rotate(${deg}deg)` }}>{'->'}</div>,
+    name: <div style={{ height: '1em', fontSize: '2em', width: '1em', transformOrigin: 'center', transform: `rotate(${deg}deg)` }}>
+      <svg style={{ height: '100%', width: '100%' }} data-name="1-Arrow Up" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <path d="m26.71 10.29-10-10a1 1 0 0 0-1.41 0l-10 10 1.41 1.41L15 3.41V32h2V3.41l8.29 8.29z"/>
+      </svg>
+    </div>,
     value: deg,
   })),
   gate: sides.map(name => ({
@@ -69,6 +74,11 @@ const options = [
   { value: 'gate', name: 'Ворота' },
 ]
 
+const optionsSwitch = [
+  { value: 'time', name: 'Время' },
+  { value: 'click', name: 'Клик' },
+]
+
 export const Root = () => {
   const { state, control } = useFrom();
   const [isView, setView] = useState();
@@ -77,14 +87,16 @@ export const Root = () => {
 
   const hash = (items[state.type] || []).reduce((acc, item) => ({ ...acc, [item.value]: item.name }), {});
   
-  const isClick = state.type === 'gate';
+  const isClick = state.type === 'gate' || state.switchBy === 'click';
 
   const { timer, stop, current, paused, time, onNext, onStart, onStop } = useTimer({ ...state, count: elems.length, isClick });
+
+  const open = control('open', '');
 
   return (
     <>
       
-      <div className={styles.item}>
+      <div className={classNames(styles.item, !open.value && styles.full)}>
         {state.type === 'gate' ? (
           <>
             <Gate items={elems} current={current} onNext={onNext} isView={isView}>
@@ -92,35 +104,57 @@ export const Root = () => {
             </Gate> 
           </>
         ) : (
-          <>
-            {!paused && !stop ? hash[elems[current]] : null}
+          isClick ? (
+            <div className={styles.fulls} onClick={isClick && onNext}>
+              <div style={{ height: '8em', width: '8em', transform: 'scale(3)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {!paused && !stop ? hash[elems[current]] : null}
+              </div>
 
-            {stop && 'Тут будет значение'}
-            {paused && `Пауза: ${time}`}
-            {!paused && !stop && `${time}`}
-          </>
+              {timer === 0 ? 'Тут будет время' : `${!stop ? 'Таймер' : 'Итого'}: ${timer}сек`}
+            </div>
+          ) : (
+            <div className={styles.fulls}>
+              <div style={{ height: '8em', width: '8em', transform: 'scale(3)', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                {!paused && !stop ? hash[elems[current]] : null}
+              </div>
+
+              {stop && 'Тут будет значение'}
+              {paused && `Пауза: ${time}`}
+              {!paused && !stop && `${time}`}
+            </div>
+          )
         )}
     
       </div>
 
-      <FormItem {...control('type', 'Тип')} options={options} type='switch' />
-      <FormItem {...control(`items-${state.type}`, 'Набор')} options={items[state.type]} type='push' />
+      {open.value && (
+        <>
+          <FormItem {...control('type', 'Тип')} options={options} type='switch' />
+          <FormItem {...control(`items-${state.type}`, 'Набор')} options={items[state.type]} type='push' />
 
-      {state.type === 'gate' ? (
-        <>
-          <Button onClick={() => setView(prev => !prev)} children={!isView ? 'Показать' : 'Скрыть'} />
-        </>
-      ) : (
-        <>
-          <FormItem {...control('timeFrom', 'Время от')} type='number' />
-          <FormItem {...control('timeTo', 'Время до')} type='number' />
-          <FormItem {...control('pause', 'Пауза')} type='number' />
+          {state.type === 'gate' ? (
+            <>
+              <Button onClick={() => setView(prev => !prev)} children={!isView ? 'Показать' : 'Скрыть'} />
+            </>
+          ) : (
+            <>
+              <FormItem {...control('switchBy', 'Переключение по')} options={optionsSwitch} type='switch' />
+              {!isClick && (
+                <>
+                  <FormItem {...control('timeFrom', 'Время от')} type='number' />
+                  <FormItem {...control('timeTo', 'Время до')} type='number' />
+                  <FormItem {...control('pause', 'Пауза')} type='number' />
+                </>
+              )}
+            </>
+          )}
         </>
       )}
       
-      
-
-      <Button className={styles.btn} onClick={stop ? onStart : onStop} children={stop ? 'Старт' : 'Стоп'} />
+      <div className={styles.btn}>
+        <Button onClick={stop ? onStart : onStop} children={stop ? 'Старт' : 'Стоп'} />
+        <Button onClick={() => open.onChange(!open.value)} children={!open.value ? 'Открыть настройки' : 'Скрыть настройки'} />
+      </div>
     </>
   )
 }
